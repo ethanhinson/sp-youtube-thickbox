@@ -32,13 +32,13 @@
 function do_ytp($att) {
 	if( isset($att['url']) ) {
 		$id = 'ytp'.rand();
-		$oe = json_decode( file_get_contents('http://www.youtube.com/oembed?url='.urlencode($att['url']) ) );
+		$oe = json_decode( get_video_content('http://www.youtube.com/oembed?url='.urlencode($att['url']) ) );
 		$href = "#TB_inline?height={$oe->height}&width={$oe->width}&inlineId={$id}";
 		return <<<HTML
 
 			<div id="{$id}" style="display:none;">{$oe->html}</div>
 			<a class="thickbox" href="{$href}">
-				<img src="{$oe->thumbnail_url}"/>
+				<img width="100%" src="{$oe->thumbnail_url}"/>
 			</a>
 
 HTML;
@@ -71,4 +71,16 @@ function head_ytp() {
 HTML;
 }
 add_action('wp_head', 'head_ytp');
+
+//CURL Replacement for file_get_contents();
+
+function get_video_content($URL){
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+  curl_setopt($ch, CURLOPT_URL, $URL);
+  $data = curl_exec($ch);
+  curl_close($ch);
+  return $data;
+}
+
 ?>
